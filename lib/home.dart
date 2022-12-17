@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
 
@@ -13,7 +11,7 @@ class Calculator extends StatefulWidget {
 class _CalculatorState extends State<Calculator> {
   String userinput = "";
   String result = "";
-  List<String> ButtonList = [
+  final List<String> ButtonList = [
     'AC',
     'C',
     '%',
@@ -49,7 +47,7 @@ class _CalculatorState extends State<Calculator> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             SizedBox(
-              height: 100,
+              height: 80,
               width: 380,
               child: ListView(
                 scrollDirection: Axis.horizontal,
@@ -63,6 +61,28 @@ class _CalculatorState extends State<Calculator> {
                       userinput,
                       style: const TextStyle(
                         color: Colors.white,
+                        fontSize: 40,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 80,
+              width: 380,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                reverse: true,
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      result,
+                      style: TextStyle(
+                        color: Colors.grey[600],
                         fontSize: 30,
                       ),
                     ),
@@ -70,19 +90,8 @@ class _CalculatorState extends State<Calculator> {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(20),
-              alignment: Alignment.centerRight,
-              child: Text(
-                result,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 30,
-                ),
-              ),
-            ),
             const SizedBox(
-              height: 100,
+              height: 50,
             ),
             Container(
               color: Colors.grey[900],
@@ -115,7 +124,7 @@ class _CalculatorState extends State<Calculator> {
       style: ElevatedButton.styleFrom(
         elevation: 0,
         backgroundColor: Colors.grey[900],
-        foregroundColor: buttoncolor[00],
+        foregroundColor: buttoncolor[200],
         shape: const CircleBorder(),
       ),
       child: Text(text,
@@ -150,39 +159,55 @@ class _CalculatorState extends State<Calculator> {
     if (text == "C") {
       if (userinput.isNotEmpty) {
         userinput = userinput.substring(0, userinput.length - 1);
+        String lastString =
+            userinput.substring(userinput.length - 1, userinput.length);
+        if (lastString != "%" &&
+            lastString != "÷" &&
+            lastString != "x" &&
+            lastString != "-" &&
+            lastString != "+" &&
+            lastString != "AC" &&
+            lastString != "=") {
+          equalPressed();
+        }
         return;
       } else {
         return null;
       }
     }
-    if (text=='=') {
-      equalPressed();
+    if (text == '=') {
+      userinput = result;
+      result = '';
     }
-
-    if (userinput.endsWith(".0")) {
-      userinput = userinput.replaceAll(".0", "");
+    if (text != '=') {
+      userinput = userinput + text;
+      String lastString =
+          userinput.substring(userinput.length - 1, userinput.length);
+      if (lastString != "C" &&
+          lastString != "%" &&
+          lastString != "÷" &&
+          lastString != "x" &&
+          lastString != "-" &&
+          lastString != "+" &&
+          lastString != "AC" &&
+          lastString != "=") {
+        equalPressed();
+      }
     }
-
-    if (result.endsWith(".0")) {
-      result = result.replaceAll(".0", "");
-    }
-    userinput = userinput + text;
-    return;
   }
 
-  void equalPressed() {
-print(userinput);
-    String finaluserinput = userinput;
-    finaluserinput = userinput.replaceAll('x', '*');
+  equalPressed() {
+    String userInputFC = userinput;
+    userInputFC = userInputFC.replaceAll("x", "*");
+    userInputFC = userInputFC.replaceAll('÷', '/');
 
-    finaluserinput = userinput.replaceAll('÷', '/');
-print(finaluserinput);
     Parser p = Parser();
-    Expression exp = p.parse(finaluserinput);
-    ContextModel cm = ContextModel();
-    double eval = exp.evaluate(EvaluationType.REAL, cm);
-    result = eval.toString();
+    Expression exp = p.parse(userInputFC);
+    ContextModel ctx = ContextModel();
+    double eval = exp.evaluate(EvaluationType.REAL, ctx);
+
+    result = eval.toString().replaceAll(".0", "");
   }
 }
 
-const buttoncolor=Colors.amber;
+const buttoncolor = Colors.amber;
